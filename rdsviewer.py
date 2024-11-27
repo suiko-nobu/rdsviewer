@@ -3,11 +3,11 @@ import pymysql
 import pandas as pd
 
 # データベース接続設定
-DB_HOST = "database-1.c3yy084war8k.ap-northeast-1.rds.amazonaws.com"
-DB_PORT = 3306
-DB_USER = "admin"
-DB_PASSWORD = "suiko-ehime-mysql"
-DB_NAME = "checkindb"
+DB_HOST = st.secrets.APIs.DB_HOST
+DB_PORT = st.secrets.APIs.DB_PORT
+DB_USER = st.secrets.APIs.DB_USER
+DB_PASSWORD = st.secrets.APIs.DB_PASSWORD
+DB_NAME = st.secrets.APIs.DB_NAME
 
 def fetch_data(query):
     """
