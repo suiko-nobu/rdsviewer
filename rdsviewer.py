@@ -41,7 +41,7 @@ def main():
     
     # クエリ入力
     st.sidebar.header("クエリを入力")
-    query = st.sidebar.text_area("SQLクエリを入力してください", "SELECT * FROM your_table LIMIT 10;")
+    query = st.sidebar.text_area("SQLクエリを入力してください", "SELECT * FROM information LIMIT 10;")
     
     if st.sidebar.button("データを取得"):
         st.write("以下のデータが取得されました:")
