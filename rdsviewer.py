@@ -9,6 +9,13 @@ DB_USER = st.secrets.APIs.DB_USER
 DB_PASSWORD = st.secrets.APIs.DB_PASSWORD
 DB_NAME = st.secrets.APIs.DB_NAME
 
+# 性別の英語から日本語への変換辞書
+gender_translation = {
+    'Male': '男性',
+    'Female': '女性',
+    'Prefer not to say': '答えたくない'
+}
+
 def fetch_data(query):
     """
     データベースからデータを取得する関数
@@ -27,6 +34,12 @@ def fetch_data(query):
         with connection.cursor() as cursor:
             cursor.execute(query)
             data = cursor.fetchall()
+        
+        # 性別情報の日本語変換
+        if data:
+            for row in data:
+                row['gender'] = gender_translation.get(row['gender'], row['gender'])  # 英語を日本語に変換
+        
         return pd.DataFrame(data) if data else pd.DataFrame()
     except Exception as e:
         st.error(f"エラーが発生しました: {e}")
