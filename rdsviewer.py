@@ -9,11 +9,16 @@ DB_USER = st.secrets.APIs.DB_USER
 DB_PASSWORD = st.secrets.APIs.DB_PASSWORD
 DB_NAME = st.secrets.APIs.DB_NAME
 
-# 性別の英語から日本語への変換辞書
-gender_translation = {
-    'Male': '男性',
-    'Female': '女性',
-    'Prefer not to say': '答えたくない'
+# 感情の英語から日本語への変換辞書
+emotion_translation = {
+    'HAPPY': '幸せ',
+    'SAD': '悲しい',
+    'ANGRY': '怒り',
+    'CONFUSED': '困惑',
+    'DISGUSTED': '嫌悪',
+    'SURPRISED': '驚き',
+    'CALM': '冷静',
+    'FEAR': '恐怖'
 }
 
 def fetch_data(query):
@@ -35,10 +40,11 @@ def fetch_data(query):
             cursor.execute(query)
             data = cursor.fetchall()
         
-        # 性別情報の日本語変換
+        # 感情情報の日本語変換
         if data:
             for row in data:
-                row['gender'] = gender_translation.get(row['gender'], row['gender'])  # 英語を日本語に変換
+                # 感情情報の日本語変換
+                row['emotion'] = emotion_translation.get(row['emotion'], row['emotion'])  # 英語を日本語に変換
         
         return pd.DataFrame(data) if data else pd.DataFrame()
     except Exception as e:
