@@ -1,6 +1,9 @@
 import streamlit as st
 import pymysql
 import pandas as pd
+import boto3
+import cv2
+import numpy as np
 
 # データベース接続設定
 DB_HOST = st.secrets.APIs.DB_HOST
@@ -15,6 +18,54 @@ gender_translation = {
     'Female': '女性',
     'Prefer not to say': '答えたくない'
 }
+
+# 感情の英語から日本語への変換辞書
+emotion_translation = {
+    'HAPPY': '幸せ',
+    'SAD': '悲しい',
+    'ANGRY': '怒り',
+    'CONFUSED': '困惑',
+    'DISGUSTED': '嫌悪',
+    'SURPRISED': '驚き',
+    'CALM': '冷静',
+    'FEAR': '恐怖'
+}
+
+# AWS Rekognitionの設定
+rekognition_client = boto3.client('rekognition', region_name='ap-northeast-1')
+
+# 感情解析関数
+def detect_emotion(photo):
+    _, img_bytes = cv2.imencode('.jpg', photo)
+    img_binary = img_bytes.tobytes()
+    response = rekognition_client.detect_faces(
+        Image={'Bytes': img_binary},
+        Attributes=['ALL']
+    )
+    emotions = response['FaceDetails'][0]['Emotions']
+    dominant_emotion = max(emotions, key=lambda x: x['Confidence'])
+    return dominant_emotion['Type']
+
+def set_background_color(emotion):
+    """感情に基づいて背景色を変更"""
+    if emotion in ['SAD', 'ANGRY', 'FEAR']:
+        # 悲しい、怒り、恐怖の場合は赤色背景
+        st.markdown("""
+            <style>
+            .stApp {
+                background-color: red;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+    else:
+        # その他の感情（例：幸せ、驚き）などは緑色背景
+        st.markdown("""
+            <style>
+            .stApp {
+                background-color: green;
+            }
+            </style>
+            """, unsafe_allow_html=True)
 
 def fetch_data(query):
     """
@@ -47,6 +98,26 @@ def fetch_data(query):
     finally:
         if 'connection' in locals() and connection.open:
             connection.close()
+
+# 顔画像をアップロードして感情を解析
+uploaded_image = st.file_uploader("画像をアップロードしてください", type=["jpg", "jpeg", "png"])
+
+if uploaded_image is not None:
+    # アップロードされた画像を読み込む
+    image = np.array(bytearray(uploaded_image.read()), dtype=np.uint8)
+    image = cv2.imdecode(image, 1)
+
+    # 感情を解析
+    emotion = detect_emotion(image)
+    
+    # 感情を日本語に変換
+    emotion_japanese = emotion_translation.get(emotion, emotion)  # 英語から日本語に変換
+    
+    # 感情に基づいて背景色を変更
+    set_background_color(emotion)
+    
+    # 感情結果を表示
+    st.write(f"感情: {emotion_japanese}")
 
 # Streamlitアプリ
 def main():
