@@ -16,6 +16,18 @@ gender_translation = {
     'Prefer not to say': '答えたくない'
 }
 
+# 感情の英語から日本語への変換辞書
+emotion_translation = {
+    'HAPPY': '幸せ',
+    'SAD': '悲しい',
+    'ANGRY': '怒り',
+    'CONFUSED': '困惑',
+    'DISGUSTED': '嫌悪',
+    'SURPRISED': '驚き',
+    'CALM': '冷静',
+    'FEAR': '恐怖'
+}
+
 def fetch_data(query):
     """
     データベースからデータを取得する関数
@@ -39,6 +51,8 @@ def fetch_data(query):
         if data:
             for row in data:
                 row['gender'] = gender_translation.get(row['gender'], row['gender'])  # 英語を日本語に変換
+                # 感情情報の日本語変換
+                row['emotion'] = emotion_translation.get(row['emotion'], row['emotion'])  # 英語を日本語に変換
         
         return pd.DataFrame(data) if data else pd.DataFrame()
     except Exception as e:
