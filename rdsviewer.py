@@ -53,6 +53,9 @@ def fetch_data(query):
                 row['gender'] = gender_translation.get(row['gender'], row['gender'])  # 英語を日本語に変換
                 # 感情情報の日本語変換
                 row['emotion'] = emotion_translation.get(row['emotion'], row['emotion'])  # 英語を日本語に変換
+                
+                # statusを「在室」または「不在」に変換
+                row['status'] = '在室' if row['status'] == 1 else '不在'
         
         return pd.DataFrame(data) if data else pd.DataFrame()
     except Exception as e:
