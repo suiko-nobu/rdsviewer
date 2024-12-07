@@ -28,6 +28,12 @@ emotion_translation = {
     'FEAR': '恐怖'
 }
 
+# 在室状態の変換
+status_translation = {
+    1: '在室',
+    0: '不在'
+}
+
 def fetch_data(query):
     """
     データベースからデータを取得する関数
@@ -47,15 +53,12 @@ def fetch_data(query):
             cursor.execute(query)
             data = cursor.fetchall()
         
-        # 性別情報の日本語変換
+        # データ変換
         if data:
             for row in data:
-                row['gender'] = gender_translation.get(row['gender'], row['gender'])  # 英語を日本語に変換
-                # 感情情報の日本語変換
-                row['emotion'] = emotion_translation.get(row['emotion'], row['emotion'])  # 英語を日本語に変換
-                
-                # statusを「在室」または「不在」に変換
-                row['status'] = '在室' if row['status'] == 1 else '不在'
+                row['gender'] = gender_translation.get(row['gender'], row['gender'])  # 性別の英語を日本語に変換
+                row['emotion'] = emotion_translation.get(row['emotion'], row['emotion'])  # 感情の英語を日本語に変換
+                row['status'] = status_translation.get(row['status'], row['status'])  # 在室状態を変換
         
         return pd.DataFrame(data) if data else pd.DataFrame()
     except Exception as e:
@@ -71,13 +74,13 @@ def main():
     
     # クエリ入力
     st.sidebar.header("クエリを入力")
-    query = st.sidebar.text_area("SQLクエリを入力してください", "SELECT * FROM information LIMIT 10;")
+    query = st.sidebar.text_area("SQLクエリを入力してください", "SELECT * FROM information;")
     
     if st.sidebar.button("データを取得"):
         st.write("以下のデータが取得されました:")
         data = fetch_data(query)
         if not data.empty:
-            st.dataframe(data)
+            st.dataframe(data)  # データフレームを表示
             # CSVダウンロードリンク
             csv = data.to_csv(index=False).encode('utf-8')
             st.download_button(
